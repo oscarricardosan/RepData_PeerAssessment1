@@ -1,15 +1,11 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
 
 Read and process of the data.
-```{R echo = TRUE}
+
+```r
 library(ggplot2)
 library(knitr)
 dataPrin <- read.csv(
@@ -19,7 +15,8 @@ dataPrin <- read.csv(
 
 ## What is mean total number of steps taken per day?
 
-```{R echo = TRUE}
+
+```r
 dataPrinGroup <- aggregate(
   list(steps = dataPrin$steps), 
   by = list(date = dataPrin$date) ,FUN=sum
@@ -30,18 +27,28 @@ hist(dataPrinGroup$steps,
 )
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png) 
+
 The next is a table with the mean and median.
 
-```{R echo = TRUE}
+
+```r
 kable(data.frame(
   median=median(dataPrinGroup$steps, na.rm = T), 
   mean=mean(dataPrinGroup$steps, na.rm = T)
 ))
 ```
 
+
+
+ median       mean
+-------  ---------
+  10765   10766.19
+
 ## What is the average daily activity pattern?
 
-```{R echo = TRUE, results = "hide"}
+
+```r
 dataPrinGroupInterval <- aggregate(
   list(steps = dataPrin$steps), 
   by = list(interval = dataPrin$interval) ,FUN=mean,
@@ -63,12 +70,15 @@ text(maxSteps$interval,0,maxSteps$interval)+
 text(0,maxSteps$steps,round(maxSteps$steps,1))
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+
 We can see that the interval with most steps average is 835 with 206.2 steps.
 
 ## Imputing missing values
 
 The procces that I choose to fill the missing data is looking for the median per day in the same month.
-```{R echo = TRUE, results='hide'}
+
+```r
 newData <- dataPrin
 newData$nameD <- weekdays(as.Date(newData$date))
 newData$id = seq(nrow(newData))
@@ -88,7 +98,8 @@ for(reg in 1:nrow(dataNA)){
 The missing rows are `R nrow(dataNA)` but after the process is of `R sum(is.na(newData$steps))`
 
 
-```{R echo = TRUE}
+
+```r
 dataPrinGroup2 <- aggregate(
   list(steps = newData$steps), 
   by = list(date = newData$date) ,FUN=sum
@@ -98,20 +109,29 @@ hist(dataPrinGroup2$steps,
      xlab = 'Number steps per day'
 )
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png) 
 We can see the new meadian and mean.
 
-```{R echo = TRUE}
+
+```r
 kable(data.frame(
   median=median(newData$steps, na.rm = T), 
   mean=mean(newData$steps, na.rm = T)
 ))
-
 ```
 
 
 
+ median       mean
+-------  ---------
+      0   37.59433
+
+
+
 ## Are there differences in activity patterns between weekdays and weekends?
-```{R echo = TRUE}
+
+```r
 newData$lapsus <- ''
 newData[newData$nameD %in% c('sabado','domingo'),]$lapsus <- 'weekend'
 newData[newData$lapsus =='',]$lapsus <- 'weekday'
@@ -125,3 +145,5 @@ ggplot(data = dataPrinGroupByInterval2, aes(interval, steps, group = lapsus))+
   geom_line()+
     facet_grid(lapsus~.)
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png) 
